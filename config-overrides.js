@@ -2,6 +2,7 @@ const path = require('path');
 const {
   getBabelLoader,
 } = require('customize-cra');
+const AntDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin');
 
 module.exports = {
   webpack: function(config, env) {
@@ -28,6 +29,13 @@ module.exports = {
     babelLoaderOthers.options.plugins = babelLoaderOthers.options.plugins || [];
     babelLoaderOthers.options.plugins.push(
       '@babel/plugin-transform-object-set-prototype-of-to-assign',
+    );
+    
+    config.plugins = config.plugins || [];
+    config.plugins.push(
+      new AntDayjsWebpackPlugin({
+        preset: 'antdv3',
+      }),
     );
 
     return config;
