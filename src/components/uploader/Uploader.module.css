@@ -1,0 +1,29 @@
+.uploaderRoot {
+  position: relative;
+}
+
+.uploaderBox {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.clipIcon {
+  width: 16px;
+  height: 15px;
+}
+
+.fileUploaderText {
+  font-size: 12px;
+  font-family: "Microsoft YaHei";
+  color: #198DFF;
+}
+
+.fileInput {
+  display: none;
+}
+
+.addedFileListUl {
+  position: absolute;
+  display: inline-block;
+  list-style-type: none;
+}
