@@ -8,7 +8,7 @@ module.exports = {
   webpack: function(config, env) {
     config.output.library = env.LIBRARY_NAME;
     config.output.libraryTarget = 'umd';
-
+    // 处理src路径下的js文件
     const babelLoader = getBabelLoader(config);
     babelLoader.options.presets = babelLoader.options.presets || [];
     babelLoader.options.presets.push(
@@ -24,7 +24,16 @@ module.exports = {
         },
       ],
     );
-
+    babelLoader.options.plugins = babelLoader.options.plugins || [];
+    babelLoader.options.plugins.push(
+      [
+        'transform-class-properties',
+        {
+          spec: true,
+        },
+      ],
+    );
+    // 处理非src路径下的js文件
     const babelLoaderOthers = getBabelLoader(config, true);
     babelLoaderOthers.options.plugins = babelLoaderOthers.options.plugins || [];
     babelLoaderOthers.options.plugins.push(

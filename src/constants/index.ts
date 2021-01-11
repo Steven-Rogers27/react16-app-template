@@ -1,0 +1,1 @@
+export const SUCCEED_CODE = 200;

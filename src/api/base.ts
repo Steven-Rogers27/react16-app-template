@@ -6,7 +6,7 @@ export class BaseAPI {
   private instance: AxiosInstance;
   constructor(
     baseURL: string,
-    timeout: number,
+    timeout?: number,
   ) {
     this.instance = axios.create({
       baseURL: baseURL,

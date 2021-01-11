@@ -5,7 +5,6 @@ import {
   Route,
   Redirect,
 } from 'react-router-dom';
-import Counter from './examples/counter/Counter';
 import Uploader from './components/uploader/Uploader';
 
 const BASE_NAME = window.__POWERED_BY_QIANKUN__ ? '/react' : '';
@@ -20,7 +19,6 @@ function App() {
           path="/"
         >
           <React.Fragment>
-            <Counter />
             <Uploader />
           </React.Fragment>
         </Route>

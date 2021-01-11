@@ -29,6 +29,13 @@
   padding-left: 36px;
 }
 
+.addingFileListUl {
+  position: absolute;
+  display: inline-block;
+  list-style-type: none;
+  padding-left: 24px;
+}
+
 .addedFileListLi {
   font-size: 0;
   margin-bottom: 6px;
@@ -59,4 +66,13 @@
   font-size: 12px;
   font-family: "Microsoft YaHei";
   color: #96A4B4;
+}
+
+.uploadLoading {
+  margin-right: 5px;
+}
+
+.uploadLoading svg {
+  width: 12px;
+  height: 12px;
 }

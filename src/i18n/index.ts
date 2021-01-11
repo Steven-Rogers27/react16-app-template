@@ -13,6 +13,7 @@ const resources = {
       pageTitle: '兼容IE10',
       fileUploader: '文件上传',
       delete: '删除',
+      failToUploadFilesDueToNetwork: '文件上传失败：网络原因',
     }
   }
 };
