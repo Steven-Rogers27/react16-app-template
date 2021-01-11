@@ -12,6 +12,7 @@ const resources = {
     translation: {
       pageTitle: '兼容IE10',
       fileUploader: '文件上传',
+      delete: '删除',
     }
   }
 };

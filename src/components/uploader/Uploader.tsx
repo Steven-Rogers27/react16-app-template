@@ -16,12 +16,41 @@ function Uploader() {
     fileInput && fileInput.click();
   };
 
+  const onDeleteBtnClick = (name: string): void => {
+    setAddedFileList((preElementList: JSX.Element[]): JSX.Element[] => {
+      const elementList: JSX.Element[] = [];
+      for (let i = 0, len = preElementList.length; i < len; i++) {
+        if (preElementList[i].key !== name) {
+          elementList.push(preElementList[i]);
+        }
+      }
+      return elementList;
+    });
+  };
+
+  const addFileItem = (file: File): JSX.Element => (
+    <li
+      key={file.name}
+      className={styles.addedFileListLi}>
+        <span
+          className={styles.addedFileItem}
+        >{ file.name }</span>
+        <div
+          className={styles.deleteBtn}
+          onClick={() => onDeleteBtnClick(file.name)}
+        >
+          <span
+            className={styles.deleteBtnText}
+          >{ t('delete') }</span>
+        </div>
+      </li>
+  );
+
   const onFileInputChange = (): void => {
     if (fileInput && fileInput.files?.length) {
       const files: FileList = fileInput.files;
-      const elmentList = arrayProto.map.call(files, (file: File, index: number) => (
-        <li key={file.name}>{ file.name }</li>
-      )) as JSX.Element[];
+      const elmentList = arrayProto.map.call(files, (file: File) => addFileItem(file)) as JSX.Element[];
+
       setAddedFileList((prevElementList: JSX.Element[]): JSX.Element[] => {
         const fileNameSet = new Set(
           arrayProto.map.call(prevElementList, (ele: JSX.Element) => ele.key)

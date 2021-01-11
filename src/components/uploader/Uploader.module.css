@@ -26,4 +26,37 @@
   position: absolute;
   display: inline-block;
   list-style-type: none;
+  padding-left: 36px;
+}
+
+.addedFileListLi {
+  font-size: 0;
+  margin-bottom: 6px;
+}
+
+.addedFileListLi:last-child {
+  margin-bottom: 0;
+}
+
+.addedFileItem {
+  font-size: 12px;
+  font-family: "Microsoft YaHei";
+  color: #333B54;
+}
+
+.deleteBtn {
+  display: inline-block;
+  margin-left: 20px;
+  width: 51px;
+  height: 22px;
+  border-radius: 4px;
+  border: 1px solid #96A4B4;
+  cursor: pointer;
+  text-align: center;
+}
+
+.deleteBtnText {
+  font-size: 12px;
+  font-family: "Microsoft YaHei";
+  color: #96A4B4;
 }
