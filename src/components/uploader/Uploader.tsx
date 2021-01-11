@@ -7,117 +7,92 @@ import { SUCCEED_CODE, } from '../../constants';
 import { message, Icon, } from 'antd';
 
 const arrayProto = Array.prototype;
-type UploadFileNameThisRound = {
+type AddedFileType = {
+  id: string;
   name: string;
+  url: string;
+  succeed: boolean;
+  uploading: boolean;
 };
 
 function Uploader() {
   const { t, } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  let fileInput: HTMLInputElement | null;
-  const [ addedFileList, setAddedFileList, ] = useState<JSX.Element[]>([]);
-  const [ uploading, setUploading, ] = useState<boolean>(false);
+  const [ addedFileList, setAddedFileList, ] = useState<AddedFileType[]>([]);
 
   const onUploaderClick = (): void => {
-    fileInput = fileInputRef.current;
+    const fileInput: HTMLInputElement | null = fileInputRef.current;
     fileInput && fileInput.click();
   };
 
-  const onDeleteBtnClick = (id: string): void => {
-    setAddedFileList((preElementList: JSX.Element[]): JSX.Element[] => {
-      const elementList: JSX.Element[] = [];
-      for (let i = 0, len = preElementList.length; i < len; i++) {
-        if (preElementList[i].key !== id) {
-          elementList.push(preElementList[i]);
+  const onDeleteBtnClick = (name: string): void => {
+    const fileInput: HTMLInputElement | null = fileInputRef.current;
+    setAddedFileList((preFileList: AddedFileType[]): AddedFileType[] => {
+      const elementList: AddedFileType[] = [];
+      // 删除UI上的文件节点
+      for (let i = 0, len = preFileList.length; i < len; i++) {
+        const preFile = preFileList[i];
+        if (preFile.name !== name) {
+          elementList.push(preFile);
         }
+      }
+      // 从 fileInput.files 中真正删除文件
+      // 因为 FileList 是个只读的类数组对象，不能修改，
+      // 所以只能清空 value 字段来清除 FileList 中所有文件
+      // issue：这种方法在IE10上无效，IE10上清空value，并不会导致清空 FileList
+      if (fileInput && fileInput.files?.length) {
+        fileInput.value = '';
       }
       return elementList;
     });
   };
 
-  const addedFileItem = (file: FileUploadResponseDataField, uploadFailed: boolean = false): JSX.Element => (
-    <li
-      key={file.id}
-      data-name={file.name}
-      className={styles.addedFileListLi}>
-      <span
-        className={styles.addedFileItem}
-        style={uploadFailed ? { color: '#f5222d', } : undefined}
-      >{ file.name }</span>
-      <div
-        className={styles.deleteBtn}
-        onClick={() => onDeleteBtnClick(file.id)}
-      >
-        <span
-          className={styles.deleteBtnText}
-        >{ t('delete') }</span>
-      </div>
-    </li>
-  );
-  
-  const addingFileItem = (file: File): JSX.Element => {
-    return (
-      <li
-        key={file.name}
-        data-name={file.name}
-        className={styles.addedFileListLi}>
-        <Icon
-          type="loading"
-          className={styles.uploadLoading}
-          spin
-        />
-        <span
-          className={styles.addedFileItem}
-        >{ file.name }</span>
-      </li>
-    );
-  };
-
   const updateAddedFileListUI = (
-    uploadSucceedData: FileUploadResponseDataField[],
-    uploadFailedData: FileUploadResponseDataField[],
+    uploadSucceedFile: AddedFileType[],
+    uploadFailedFile: AddedFileType[],
   ): void => {
-    setAddedFileList((prevElementList: JSX.Element[]): JSX.Element[] => {
+    setAddedFileList((prevFileList: AddedFileType[]): AddedFileType[] => {
       const succeedNameMap = new Map();
-      for (let i = 0, len = uploadSucceedData.length; i < len; i++) {
-        const file: FileUploadResponseDataField = uploadSucceedData[i];
-        succeedNameMap.set(file.name, addedFileItem(file));
+      for (let i = 0, len = uploadSucceedFile.length; i < len; i++) {
+        const file = uploadSucceedFile[i];
+        succeedNameMap.set(file.name, file);
       }
       const failedNameMap = new Map();
-      for (let i = 0, len = uploadFailedData.length; i < len; i++) {
-        const file: FileUploadResponseDataField = uploadFailedData[i];
-        failedNameMap.set(file.name, addedFileItem(file, true));
+      for (let i = 0, len = uploadFailedFile.length; i < len; i++) {
+        const file = uploadFailedFile[i];
+        failedNameMap.set(file.name, file);
       }
-      // 过滤出本轮成功上传的文件节点，并替换其UI状态,
-      // 同时要保持之前已经上传成功的节点
-      const filteredElement: JSX.Element[] = [];
-      for (let i = 0, len = prevElementList.length; i < len; i++) {
-        const preEle: JSX.Element = prevElementList[i];
-        const name: string = preEle.props['data-name'];
+      // 分别改变上传成功、上传失败文件的UI状态
+      // 同时保持之前已经上传的文件的UI状态不变
+      const nextFileList: AddedFileType[] = [];
+      for (let i = 0, len = prevFileList.length; i < len; i++) {
+        const preFile: AddedFileType = prevFileList[i];
+        const name: string = preFile.name;
         if (succeedNameMap.has(name)) {
-          filteredElement.push(succeedNameMap.get(name));
+          nextFileList.push(succeedNameMap.get(name));
           continue;
         }
         if (failedNameMap.has(name)) {
-          filteredElement.push(failedNameMap.get(name));
+          nextFileList.push(failedNameMap.get(name));
           continue;
         }
-        filteredElement.push(preEle);
+        nextFileList.push(preFile);
       }
-      return filteredElement;
+      return nextFileList;
     });
   };
 
   const uploadFilesApi = (files: File[]): void => {
     if (!files.length) { return; }
-    setUploading(true);
-    const fileNames: FileUploadResponseDataField[] = arrayProto.map.call(files,
-      (file: File): FileUploadResponseDataField => ({
-        name: file.name,
+    const fileNames: AddedFileType[] = arrayProto.map.call(files,
+      (file: File): AddedFileType => ({
         id: file.name,
+        name: file.name,
         url: '',
+        succeed: false,
+        uploading: false,
       })
-    ) as FileUploadResponseDataField[];
+    ) as AddedFileType[];
     uploaderApi.uploadFiles({
       belongId: '',
       type: '',
@@ -125,10 +100,19 @@ function Uploader() {
     }).then((res: FileUploadResponseType): void => {
       const { status, message: msg, data } = res;
       if (status === SUCCEED_CODE &&
-          data
+          Array.isArray(data)
         ) {
         message.success(msg);
-        updateAddedFileListUI(data, []);
+        updateAddedFileListUI(
+          arrayProto.map.call(data, (d: FileUploadResponseDataField): AddedFileType => ({
+            id: d.id,
+            name: d.name,
+            url: d.url,
+            succeed: false,
+            uploading: false,
+          })) as AddedFileType[],
+          [],
+        );
       } else {
         message.error(msg);
         updateAddedFileListUI([], fileNames);
@@ -136,53 +120,38 @@ function Uploader() {
     }, (): void => {
       message.error(t('failToUploadFilesDueToNetwork'));
       updateAddedFileListUI([], fileNames);
-      // updateAddedFileListUI([
-      //   {
-      //     id: '1234',
-      //     name: 'file1',
-      //     url: 'www.baidu.com',
-      //   },
-      //   {
-      //     id: '1235',
-      //     name: 'file2',
-      //     url: 'www.baidu.com',
-      //   },
-      //   {
-      //     id: '1236',
-      //     name: 'file3',
-      //     url: 'www.baidu.com',
-      //   },
-      // ]);
     }).finally((): void => {
-      setUploading(false);
     });
   };
 
   const onFileInputChange = (): void => {
+    const fileInput: HTMLInputElement | null = fileInputRef.current;
     if (fileInput && fileInput.files?.length) {
       const files: FileList = fileInput.files;
-      setAddedFileList((prevElementList: JSX.Element[]): JSX.Element[] => {
-        const fileNameSet = new Set(
-          arrayProto.map.call(prevElementList, (ele: JSX.Element) => ele.props['data-name'])
+      setAddedFileList((prevFileList: AddedFileType[]): AddedFileType[] => {
+        const prevFileNameSet = new Set(
+          arrayProto.map.call(prevFileList, (file: AddedFileType) => file.name)
         );
-        const elementList = arrayProto.map.call(files, (file: File) => addingFileItem(file)) as JSX.Element[];
-        // 去除之前已经添加过的文件，防止重复添加同一文件
-        const deDuplicatedElements: JSX.Element[] = [];
-        for (let i = 0, len = elementList.length; i < len; i++) {
-          if (!fileNameSet.has(elementList[i].key)) {
-            deDuplicatedElements.push(elementList[i]);
-          }
-        }
 
+        // 去除之前已经添加过的文件，防止重复添加同一文件
         const deDuplicatedFiles: File[] = [];
         for (let i = 0, len = files.length; i < len; i++) {
-          if (!fileNameSet.has(files[i].name)) {
+          if (!prevFileNameSet.has(files[i].name)) {
             deDuplicatedFiles.push(files[i]);
           }
         }
         uploadFilesApi(deDuplicatedFiles);
 
-        return [...prevElementList, ...deDuplicatedElements];
+        return [
+          ...prevFileList,
+          ...arrayProto.map.call(deDuplicatedFiles, (file: File): AddedFileType => ({
+            id: file.name,
+            name: file.name,
+            url: '',
+            succeed: false,
+            uploading: true,
+          })) as AddedFileType[],
+        ];
       });
     }
   };
@@ -211,12 +180,40 @@ function Uploader() {
         type="file"
         id="fileUploader"
         className={styles.fileInput}
-        onChange={onFileInputChange}
+        onInput={onFileInputChange}
       />
       <ul
-        className={uploading ? styles.addingFileListUl : styles.addedFileListUl}
+        className={styles.addedFileListUl}
       >
-        { addedFileList }
+        {
+          addedFileList.map((file: AddedFileType): JSX.Element => {
+            return (
+              <li
+                key={file.id}
+                data-name={file.name}
+                className={styles.addedFileListLi}>
+                <Icon
+                  style={ file.uploading ? { display: 'inline-block', } : { display: 'none', } }
+                  type="loading"
+                  className={styles.uploadLoading}
+                  spin
+                />
+                <span
+                  className={styles.addedFileItem}
+                  style={!file.succeed ? { color: '#f5222d', } : undefined}
+                >{ file.name }</span>
+                <div
+                  className={styles.deleteBtn}
+                  onClick={() => onDeleteBtnClick(file.name)}
+                >
+                  <span
+                    className={styles.deleteBtnText}
+                  >{ t('delete') }</span>
+                </div>
+              </li>
+            );
+          })
+        }
       </ul>
     </div>
   );
