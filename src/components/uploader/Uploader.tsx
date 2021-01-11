@@ -23,10 +23,9 @@ function Uploader() {
         <li key={file.name}>{ file.name }</li>
       )) as JSX.Element[];
       setAddedFileList((prevElementList: JSX.Element[]): JSX.Element[] => {
-        const fileNameSet = new Set();
-        for (let i = 0, len = prevElementList.length; i < len; i++) {
-          fileNameSet.add(prevElementList[i].key);
-        }
+        const fileNameSet = new Set(
+          arrayProto.map.call(prevElementList, (ele: JSX.Element) => ele.key)
+        );
         // 去除之前已经添加过的文件，防止重复添加同一文件
         const deDuplicatedList: JSX.Element[] = [];
         for (let i = 0, len = elmentList.length; i < len; i++) {
