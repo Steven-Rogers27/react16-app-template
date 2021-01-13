@@ -6,6 +6,7 @@ import {
   Redirect,
 } from 'react-router-dom';
 import Uploader from './components/uploader/Uploader';
+import uuid from './utils/uuidGenerator';
 
 const BASE_NAME = window.__POWERED_BY_QIANKUN__ ? '/react' : '';
 
@@ -19,7 +20,10 @@ function App() {
           path="/"
         >
           <React.Fragment>
-            <Uploader />
+            <Uploader
+              belongId={uuid()}
+              type="SIGN_UP"
+            />
           </React.Fragment>
         </Route>
         <Redirect

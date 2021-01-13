@@ -14,6 +14,7 @@ const resources = {
       fileUploader: '文件上传',
       delete: '删除',
       failToUploadFilesDueToNetwork: '文件上传失败：网络原因',
+      failToDeleteFileDueToNetwork: '删除文件失败：网络原因',
     }
   }
 };

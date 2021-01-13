@@ -62,6 +62,7 @@ module.exports = {
         ...config.headers,
         'Access-Control-Allow-Origin': '*',
       };
+      config.host = 'dev.m2.com.cn'; 
       // 当使用 HTML History 接口作为页面路由时，对于404的url响应全部使其跳转到index.html
       config.historyApiFallback = true;
 

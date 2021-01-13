@@ -1,11 +1,12 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { apiTarget, } from './config';
 
 export const DEFAULT_API_TIMEOUT = 30000;
 
 export class BaseAPI {
   private instance: AxiosInstance;
   constructor(
-    baseURL: string,
+    baseURL: string | undefined = apiTarget.BACKEND_HOST,
     timeout?: number,
   ) {
     this.instance = axios.create({

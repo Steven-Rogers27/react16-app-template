@@ -2,7 +2,7 @@ import { AxiosResponse } from 'axios';
 import { BaseAPI, } from './base';
 
 export class UploaderAPI extends BaseAPI {
-  public uploadFiles<R = AxiosResponse<FileUploadResponseType>>(data: FileUploadBodyParamsType): Promise<any> {
+  public uploadFiles(data: FileUploadBodyParamsType): Promise<any> {
     const { belongId, type, files, } = data;
     const formData = new FormData();
     formData.append('belongId', belongId);
@@ -33,11 +33,27 @@ export class UploaderAPI extends BaseAPI {
     });
   }
 
-  public deleteUploadedFile<T = any, R = AxiosResponse<T>>(id: string): Promise<R> {
+  public deleteUploadedFile(id: string): Promise<any> {
     return super.delete(
       `/supplier/files/${id}`,
-    );
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Glodon-M2-AK': '11a82026a16443ccb71cb18e82409eb4',
+          'Glodon-M2-Token': '11a82026a16443ccb71cb18e82409eb4',
+        },
+      },
+    ).then((res: AxiosResponse<ResponseDataType>): any => {
+      const { data, } = res;
+      if (data) {
+        return data;
+      }
+      throw new Error('返回结果data字段不存在');
+    }).catch((err: any): any => {
+      console.error(err);
+      throw err;
+    });
   }
 }
 
-export const uploaderApi = new UploaderAPI('');
+export const uploaderApi = new UploaderAPI();
